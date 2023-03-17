@@ -1,3 +1,5 @@
+# Learn more about Makefile: https://makefiletutorial.com
+
 postgres:
 	docker run --name postgres15 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres:15-alpine
 
@@ -16,4 +18,5 @@ migratedown:
 sqlc:
 	sqlc generate
 
+# Note: Adding .PHONY to a target will prevent Make from confusing the phony target with a file name.
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc
