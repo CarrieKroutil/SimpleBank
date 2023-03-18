@@ -18,5 +18,8 @@ migratedown:
 sqlc:
 	sqlc generate
 
+test:
+	go test -v -cover ./...
+
 # Note: Adding .PHONY to a target will prevent Make from confusing the phony target with a file name.
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc

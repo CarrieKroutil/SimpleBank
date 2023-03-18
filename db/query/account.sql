@@ -29,14 +29,14 @@ OFFSET $2 -- skip this many rows before starting to return the results
 ------------------------------------------------------------------------------------
 -- Learn more: https://docs.sqlc.dev/en/latest/howto/update.html#multiple-parameters
 ------------------------------------------------------------------------------------
--- name: UpdateAccount :exec
-UPDATE accounts SET balance = $2
-WHERE id = $1;
-
--- name: UpdateAccountAndReturnRecord :one
+-- name: UpdateAccount :one
 UPDATE accounts SET balance = $2
 WHERE id = $1
 RETURNING *;
+
+-- name: UpdateAccountNoReturnRecord :exec
+UPDATE accounts SET balance = $2
+WHERE id = $1;
 
 
 ----------------------------------------------------------------

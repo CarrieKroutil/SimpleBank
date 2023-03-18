@@ -117,9 +117,10 @@ func (q *Queries) ListAccounts(ctx context.Context, arg ListAccountsParams) ([]A
 	return items, nil
 }
 
-const updateAccount = `-- name: UpdateAccount :exec
+const updateAccount = `-- name: UpdateAccount :one
 UPDATE accounts SET balance = $2
 WHERE id = $1
+RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountParams struct {
@@ -130,24 +131,8 @@ type UpdateAccountParams struct {
 // ----------------------------------------------------------------------------------
 // Learn more: https://docs.sqlc.dev/en/latest/howto/update.html#multiple-parameters
 // ----------------------------------------------------------------------------------
-func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) error {
-	_, err := q.db.ExecContext(ctx, updateAccount, arg.ID, arg.Balance)
-	return err
-}
-
-const updateAccountAndReturnRecord = `-- name: UpdateAccountAndReturnRecord :one
-UPDATE accounts SET balance = $2
-WHERE id = $1
-RETURNING id, owner, balance, currency, created_at
-`
-
-type UpdateAccountAndReturnRecordParams struct {
-	ID      int64 `json:"id"`
-	Balance int64 `json:"balance"`
-}
-
-func (q *Queries) UpdateAccountAndReturnRecord(ctx context.Context, arg UpdateAccountAndReturnRecordParams) (Account, error) {
-	row := q.db.QueryRowContext(ctx, updateAccountAndReturnRecord, arg.ID, arg.Balance)
+func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
+	row := q.db.QueryRowContext(ctx, updateAccount, arg.ID, arg.Balance)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -157,4 +142,19 @@ func (q *Queries) UpdateAccountAndReturnRecord(ctx context.Context, arg UpdateAc
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const updateAccountNoReturnRecord = `-- name: UpdateAccountNoReturnRecord :exec
+UPDATE accounts SET balance = $2
+WHERE id = $1
+`
+
+type UpdateAccountNoReturnRecordParams struct {
+	ID      int64 `json:"id"`
+	Balance int64 `json:"balance"`
+}
+
+func (q *Queries) UpdateAccountNoReturnRecord(ctx context.Context, arg UpdateAccountNoReturnRecordParams) error {
+	_, err := q.db.ExecContext(ctx, updateAccountNoReturnRecord, arg.ID, arg.Balance)
+	return err
 }
